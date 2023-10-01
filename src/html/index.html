@@ -101,32 +101,39 @@
             const lines = contents.split('\n');
 
             // Create a table to display the CSV data
-            let html = '<tr>';
-            const thead = '<thead>';
-            const tbody = '<tbody>';
+            let html = '';
+            let thead = '<thead>';
+      
+            const columns = lines[0].split(',');
+      
+            // making the tablehead
+            // eslint-disable-next-line no-loop-func
+            thead += '<tr>';
+            columns.forEach((cell) => {
+              const p = `<th>${cell}</th>`;
+              thead += p;
+            });
+            thead += '</tr>';
+            thead += '</thead>';
 
-            for (let i = 0; i < 5; i += 1) {
-              if (i === 0) {
-                const columns = lines[0].split(',');
-
-                // eslint-disable-next-line no-loop-func
-                columns.forEach((cell) => {
-                  const p = `<th>${cell}</th>`;
-                  html += p;
-                });
-                html += '</tr>';
-                // console.log(columns);
-                allColumnNames.push(...columns);
-              }
+            html += thead;
+            allColumnNames.push(...columns);
+      
+            let tbody = '<tbody>';
+            for (let i = 1; i < 5; i += 1) {
               const cells = lines[i].split(',');
-              html += '<tr>';
+              tbody += '<tr>';
               // eslint-disable-next-line no-loop-func
               cells.forEach((cell) => {
                 const p = `<td>${cell}</td>`;
-                html += p;
+                tbody += p;
               });
-              html += '</tr>';
+              tbody += '</tr>';
             }
+            tbody += '</tbody>';
+
+            html += tbody;
+      
             csvTable.innerHTML = html;
             console.log(allColumnNames);
           };

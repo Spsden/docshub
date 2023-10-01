@@ -62,6 +62,16 @@
     #selected-file {
       margin-top: 10px;
     }
+    .process-csv{
+      margin-top: 10px;
+      padding: 10px 20px;
+      display: none;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
 
     #open-file-button {
       margin-top: 10px;
@@ -86,7 +96,7 @@
     <div id="column-list">
      
     </div>
-    <button id="process-csv">click me</button>
+    <button id="process-csv">Import</button>
     <div id="output"></div>
 
     <div style="padding-top: 20px; overflow-x: auto; overflow-y: hidden">
@@ -112,6 +122,32 @@
       e.preventDefault();
       dropArea.style.backgroundColor = '#f9f9f9';
       dropArea.style.color = '#000';
+    }
+
+    function processColumns(selectedColumns, originalData) {
+      const columnsToRemove = [];
+
+      const lines = originalData.split('\n');
+      const columns = lines[0].split(',');
+      const columnIndexToRemove = [];
+
+      columnsToRemove.forEach((column) => {
+        const index = columns.indexOf(column.trim());
+        if (index !== -1) {
+          columnIndexToRemove.push(index);
+        }
+      });
+
+      const filteredLines = lines.map((line) => {
+        const values = line.split(',');
+        columnIndexToRemove.sort((a, b) => b - a); // Sort in descending order to avoid index shifting
+        // eslint-disable-next-line no-restricted-syntax
+        for (const index of columnIndexToRemove) {
+          values.splice(index, 1);
+        }
+        return values.join(',');
+      });
+      return filteredLines;
     }
 
     function checkBoxCreator(name) {
@@ -199,8 +235,10 @@
           csvTable.innerHTML = html;
 
           console.log(allColumnNames);
+          processCsv.style.display = '';
         };
       } else {
+        processCsv.style.display = 'none';
         alert('No file selected!');
       }
 

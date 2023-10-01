@@ -3,17 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <title>Drag and Drop</title>
-    <!-- Import jQuery from Cloudflare CDN -->
+
+    <!-- Compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-      /* Inline CSS for aesthetics */
       body {
         font-family: Arial, sans-serif;
       }
 
       .container {
         padding: 20px;
-
         text-align: center;
         margin: 0 auto;
         box-sizing: border-box;
@@ -57,6 +63,8 @@
         <label for="file" id="selected-file">No file selected</label>
         <input type="file" class="file-input" id="file" accept="*" />
         <button id="open-file-button">Open File</button>
+      </div>
+      <div style="padding-top: 20px; overflow-x: auto; overflow-y: hidden">
         <table id="csvTable" border="1"></table>
       </div>
     </div>
@@ -79,22 +87,39 @@
         dropArea.style.color = '#000';
       }
       // Function to display the selected file
-      function displaySelectedFile(file) {
+      async function displaySelectedFile(file) {
         const selectedFile = document.getElementById('selected-file');
 
-        console.log(file);
+        const allColumnNames = [];
+
         if (file) {
           const reader = new FileReader();
 
+          reader.readAsText(file);
           reader.onload = function (e) {
             const contents = e.target.result;
             const lines = contents.split('\n');
 
             // Create a table to display the CSV data
             let html = '<tr>';
+            const thead = '<thead>';
+            const tbody = '<tbody>';
 
             for (let i = 0; i < 5; i += 1) {
+              if (i === 0) {
+                const columns = lines[0].split(',');
+
+                // eslint-disable-next-line no-loop-func
+                columns.forEach((cell) => {
+                  const p = `<th>${cell}</th>`;
+                  html += p;
+                });
+                html += '</tr>';
+                // console.log(columns);
+                allColumnNames.push(...columns);
+              }
               const cells = lines[i].split(',');
+              html += '<tr>';
               // eslint-disable-next-line no-loop-func
               cells.forEach((cell) => {
                 const p = `<td>${cell}</td>`;
@@ -103,20 +128,10 @@
               html += '</tr>';
             }
             csvTable.innerHTML = html;
-            // lines.forEach((line) => {
-            //   const cells = line.split(',');
-            //   cells.forEach((cell) => {
-            //     const p = `<td>${cell}</td>`;
-            //     html += p;
-            //   });
-            //   html += '</tr>';
-            // });
-
-            // csvTable.innerHTML = html;
+            console.log(allColumnNames);
           };
 
           // Read the file as text
-          reader.readAsText(file);
         } else {
           alert('No file selected!');
         }

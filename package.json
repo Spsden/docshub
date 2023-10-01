@@ -23,7 +23,8 @@
     "google-workspace"
   ],
   "dependencies": {
-    "apps-script-oauth2": "github:googleworkspace/apps-script-oauth2"
+    "apps-script-oauth2": "github:googleworkspace/apps-script-oauth2",
+    "csv": "^6.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.22.11",

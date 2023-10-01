@@ -1,20 +1,19 @@
-
 <!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
     <title>Drag and Drop</title>
+    <!-- Import jQuery from Cloudflare CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
+      /* Inline CSS for aesthetics */
       body {
         font-family: Arial, sans-serif;
       }
 
       .container {
-       
-        
         padding: 20px;
-        
+
         text-align: center;
         margin: 0 auto;
         box-sizing: border-box;
@@ -58,47 +57,97 @@
         <label for="file" id="selected-file">No file selected</label>
         <input type="file" class="file-input" id="file" accept="*" />
         <button id="open-file-button">Open File</button>
+        <table id="csvTable" border="1"></table>
       </div>
     </div>
 
     <script>
-    const dropArea = document.getElementById('dropArea');
-    function handleDragOver(e) {
-      e.preventDefault();
-      dropArea.style.backgroundColor = '#007bff';
-      dropArea.style.color = '#fff';
-    }
+      // Function to handle drag over
+      const dropArea = document.getElementById('dropArea');
+      const csvTable = document.getElementById('csvTable');
 
-    function displaySelectedFile(file) {
-      const selectedFile = document.getElementById('selected-file');
-      selectedFile.textContent = file.name;
-    }
-    function handleDragLeave(e) {
-      e.preventDefault();
-      dropArea.style.backgroundColor = '#f9f9f9';
-      dropArea.style.color = '#000';
-    }
-    function handleFileSelect(e) {
-      e.preventDefault();
-      dropArea.style.backgroundColor = '#f9f9f9';
-      dropArea.style.color = '#000';
+      function handleDragOver(e) {
+        e.preventDefault();
+        dropArea.style.backgroundColor = '#007bff';
+        dropArea.style.color = '#fff';
+      }
 
-      const file = e.dataTransfer.files[0];
-      displaySelectedFile(file);
-    }
+      // Function to handle drag leave
+      function handleDragLeave(e) {
+        e.preventDefault();
+        dropArea.style.backgroundColor = '#f9f9f9';
+        dropArea.style.color = '#000';
+      }
+      // Function to display the selected file
+      function displaySelectedFile(file) {
+        const selectedFile = document.getElementById('selected-file');
 
-    dropArea.addEventListener('dragover', handleDragOver, false);
-    dropArea.addEventListener('dragleave', handleDragLeave, false);
-    dropArea.addEventListener('drop', handleFileSelect, false);
-    
-document.getElementById('open-file-button').addEventListener('click', function () {
-      document.getElementById('file').click();
-    });
+        console.log(file);
+        if (file) {
+          const reader = new FileReader();
 
-    document.getElementById('file').addEventListener('change', function () {
-      const file = this.files[0];
-      displaySelectedFile(file);
-    });
+          reader.onload = function (e) {
+            const contents = e.target.result;
+            const lines = contents.split('\n');
+
+            // Create a table to display the CSV data
+            let html = '<tr>';
+
+            for (let i = 0; i < 5; i += 1) {
+              const cells = lines[i].split(',');
+              // eslint-disable-next-line no-loop-func
+              cells.forEach((cell) => {
+                const p = `<td>${cell}</td>`;
+                html += p;
+              });
+              html += '</tr>';
+            }
+            csvTable.innerHTML = html;
+            // lines.forEach((line) => {
+            //   const cells = line.split(',');
+            //   cells.forEach((cell) => {
+            //     const p = `<td>${cell}</td>`;
+            //     html += p;
+            //   });
+            //   html += '</tr>';
+            // });
+
+            // csvTable.innerHTML = html;
+          };
+
+          // Read the file as text
+          reader.readAsText(file);
+        } else {
+          alert('No file selected!');
+        }
+
+        selectedFile.textContent = file.name;
+      }
+      function handleFileSelect(e) {
+        e.preventDefault();
+        dropArea.style.backgroundColor = '#f9f9f9';
+        dropArea.style.color = '#000';
+
+        const file = e.dataTransfer.files[0];
+        displaySelectedFile(file);
+      }
+      // Add event listeners for drag and drop
+      dropArea.addEventListener('dragover', handleDragOver, false);
+      dropArea.addEventListener('dragleave', handleDragLeave, false);
+      dropArea.addEventListener('drop', handleFileSelect, false);
+
+      // Function to handle file selection
+
+      // Function to open the file input dialog
+      document.getElementById('open-file-button').addEventListener('click', function () {
+        document.getElementById('file').click();
+      });
+
+      // Function to handle file input change
+      document.getElementById('file').addEventListener('change', function () {
+        const file = this.files[0];
+        displaySelectedFile(file);
+      });
     </script>
   </body>
 </html>

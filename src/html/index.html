@@ -52,6 +52,7 @@
       overflow-x: auto;
       overflow-y: hidden;
       border: 2px solid #ccc;
+     
     }
 
     .file-input {
@@ -85,6 +86,8 @@
     <div id="column-list">
      
     </div>
+    <button id="process-csv">click me</button>
+    <div id="output"></div>
 
     <div style="padding-top: 20px; overflow-x: auto; overflow-y: hidden">
       <table id="csvTable" border="1"></table>
@@ -96,6 +99,7 @@
     const dropArea = document.getElementById('dropArea');
     const csvTable = document.getElementById('csvTable');
     const buttonList = document.getElementById('column-list');
+    const processCsv = document.getElementById('process-csv');
 
     function handleDragOver(e) {
       e.preventDefault();
@@ -111,7 +115,7 @@
     }
 
     function checkBoxCreator(name) {
-      const box = `    <p>
+      const box = `<p style="text-align:left">
         <label>
           <input type="checkbox" class="filled-in" checked="checked" />
           <span>${name}</span>
@@ -119,7 +123,25 @@
       </p>`;
       return box;
     }
+    
     // Function to display the selected file
+    let fileString = '';
+
+    processCsv.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('clicked');
+
+      if (fileString.trim().length !== 0) {
+        // eslint-disable-next-line no-undef
+        google.script.run
+          .withSuccessHandler(function (result) {
+            console.log(result);
+          })
+          // eslint-disable-next-line prettier/prettier
+      .myFunction(fileString);
+  }
+    });
+
     async function displaySelectedFile(file) {
       const selectedFile = document.getElementById('selected-file');
 
@@ -129,14 +151,15 @@
         const reader = new FileReader();
 
         reader.readAsText(file);
+    
         reader.onload = function (e) {
           const contents = e.target.result;
+          fileString = contents;
           const lines = contents.split('\n');
 
           // Create a table to display the CSV data
           let html = '';
           let thead = '<thead>';
-          const listOfButtons = [];
           const columns = lines[0].split(',');
 
           // making the tablehead
@@ -183,6 +206,13 @@
 
       selectedFile.textContent = file.name;
     }
+
+    function insertResult() {
+      console.log('insert resul here');
+      // const div = document.getElementById('output');
+      // div.innerHTML = `<p>Got it!</p>`;
+    }
+
     function handleFileSelect(e) {
       e.preventDefault();
       dropArea.style.backgroundColor = '#f9f9f9';

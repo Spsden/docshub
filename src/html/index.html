@@ -1,175 +1,214 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Drag and Drop</title>
 
-    <!-- Compiled and minified CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <title>Drag and Drop</title>
 
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-      }
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
 
-      .container {
-        padding: 20px;
-        text-align: center;
-        margin: 0 auto;
-        box-sizing: border-box;
-      }
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 3px;
+    }
 
-      .drop-area {
-        width: 100%;
-        height: 300px;
-        border: 2px solid #ccc;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background-color: #f9f9f9;
-        cursor: pointer;
-      }
+    td {
+      white-space: nowrap;
+      overflow: hidden;
+      width: 15px;
+      height: 25px;
+    }
 
-      .file-input {
-        display: none;
-      }
+    tr:nth-child(even) {
+      background-color: rgba(197, 219, 241, 0.379);
+    }
 
-      #selected-file {
-        margin-top: 10px;
-      }
+    .container {
+      padding: 10px;
+      text-align: center;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
 
-      #open-file-button {
-        margin-top: 10px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="drop-area" id="dropArea">
-        <p>Drag and drop a file here or</p>
-        <label for="file" id="selected-file">No file selected</label>
-        <input type="file" class="file-input" id="file" accept="*" />
-        <button id="open-file-button">Open File</button>
-      </div>
-      <div style="padding-top: 20px; overflow-x: auto; overflow-y: hidden">
-        <table id="csvTable" border="1"></table>
-      </div>
+    .drop-area {
+      width: 100%;
+      height: 300px;
+      border: 2px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: #f9f9f9;
+      cursor: pointer;
+    }
+
+    .column-list {
+      padding-top: 20px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      border: 2px solid #ccc;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    #selected-file {
+      margin-top: 10px;
+    }
+
+    #open-file-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="drop-area" id="dropArea">
+      <p>Drag and drop a file here or</p>
+      <label for="file" id="selected-file">No file selected</label>
+      <input type="file" class="file-input" id="file" accept="*" />
+      <button id="open-file-button">Open File</button>
+    </div>
+    <div id="column-list">
+     
     </div>
 
-    <script>
-      // Function to handle drag over
-      const dropArea = document.getElementById('dropArea');
-      const csvTable = document.getElementById('csvTable');
+    <div style="padding-top: 20px; overflow-x: auto; overflow-y: hidden">
+      <table id="csvTable" border="1"></table>
+    </div>
+  </div>
 
-      function handleDragOver(e) {
-        e.preventDefault();
-        dropArea.style.backgroundColor = '#007bff';
-        dropArea.style.color = '#fff';
-      }
+  <script>
+    // Function to handle drag over
+    const dropArea = document.getElementById('dropArea');
+    const csvTable = document.getElementById('csvTable');
+    const buttonList = document.getElementById('column-list');
 
-      // Function to handle drag leave
-      function handleDragLeave(e) {
-        e.preventDefault();
-        dropArea.style.backgroundColor = '#f9f9f9';
-        dropArea.style.color = '#000';
-      }
-      // Function to display the selected file
-      async function displaySelectedFile(file) {
-        const selectedFile = document.getElementById('selected-file');
+    function handleDragOver(e) {
+      e.preventDefault();
+      dropArea.style.backgroundColor = '#007bff';
+      dropArea.style.color = '#fff';
+    }
 
-        const allColumnNames = [];
+    // Function to handle drag leave
+    function handleDragLeave(e) {
+      e.preventDefault();
+      dropArea.style.backgroundColor = '#f9f9f9';
+      dropArea.style.color = '#000';
+    }
 
-        if (file) {
-          const reader = new FileReader();
+    function checkBoxCreator(name) {
+      const box = `    <p>
+        <label>
+          <input type="checkbox" class="filled-in" checked="checked" />
+          <span>${name}</span>
+        </label>
+      </p>`;
+      return box;
+    }
+    // Function to display the selected file
+    async function displaySelectedFile(file) {
+      const selectedFile = document.getElementById('selected-file');
 
-          reader.readAsText(file);
-          reader.onload = function (e) {
-            const contents = e.target.result;
-            const lines = contents.split('\n');
+      const allColumnNames = [];
 
-            // Create a table to display the CSV data
-            let html = '';
-            let thead = '<thead>';
-      
-            const columns = lines[0].split(',');
-      
-            // making the tablehead
+      if (file) {
+        const reader = new FileReader();
+
+        reader.readAsText(file);
+        reader.onload = function (e) {
+          const contents = e.target.result;
+          const lines = contents.split('\n');
+
+          // Create a table to display the CSV data
+          let html = '';
+          let thead = '<thead>';
+          const listOfButtons = [];
+          const columns = lines[0].split(',');
+
+          // making the tablehead
+          // eslint-disable-next-line no-loop-func
+          thead += '<tr>';
+          let form = '<form>';
+          columns.forEach((cell) => {
+            const button = checkBoxCreator(cell);
+            form += button;
+    
+            const p = `<th>${cell}</th>`;
+            thead += p;
+          });
+          form += '</form>';
+          buttonList.innerHTML = form;
+          thead += '</tr>';
+          thead += '</thead>';
+
+          html += thead;
+          allColumnNames.push(...columns);
+
+          let tbody = '<tbody>';
+          for (let i = 1; i < 5; i += 1) {
+            const cells = lines[i].split(',');
+            tbody += '<tr>';
             // eslint-disable-next-line no-loop-func
-            thead += '<tr>';
-            columns.forEach((cell) => {
-              const p = `<th>${cell}</th>`;
-              thead += p;
+            cells.forEach((cell) => {
+              const p = `<td>${cell}</td>`;
+              tbody += p;
             });
-            thead += '</tr>';
-            thead += '</thead>';
+            tbody += '</tr>';
+          }
+          tbody += '</tbody>';
 
-            html += thead;
-            allColumnNames.push(...columns);
-      
-            let tbody = '<tbody>';
-            for (let i = 1; i < 5; i += 1) {
-              const cells = lines[i].split(',');
-              tbody += '<tr>';
-              // eslint-disable-next-line no-loop-func
-              cells.forEach((cell) => {
-                const p = `<td>${cell}</td>`;
-                tbody += p;
-              });
-              tbody += '</tr>';
-            }
-            tbody += '</tbody>';
+          html += tbody;
 
-            html += tbody;
-      
-            csvTable.innerHTML = html;
-            console.log(allColumnNames);
-          };
+          csvTable.innerHTML = html;
 
-          // Read the file as text
-        } else {
-          alert('No file selected!');
-        }
-
-        selectedFile.textContent = file.name;
+          console.log(allColumnNames);
+        };
+      } else {
+        alert('No file selected!');
       }
-      function handleFileSelect(e) {
-        e.preventDefault();
-        dropArea.style.backgroundColor = '#f9f9f9';
-        dropArea.style.color = '#000';
 
-        const file = e.dataTransfer.files[0];
-        displaySelectedFile(file);
-      }
-      // Add event listeners for drag and drop
-      dropArea.addEventListener('dragover', handleDragOver, false);
-      dropArea.addEventListener('dragleave', handleDragLeave, false);
-      dropArea.addEventListener('drop', handleFileSelect, false);
+      selectedFile.textContent = file.name;
+    }
+    function handleFileSelect(e) {
+      e.preventDefault();
+      dropArea.style.backgroundColor = '#f9f9f9';
+      dropArea.style.color = '#000';
 
-      // Function to handle file selection
+      const file = e.dataTransfer.files[0];
+      displaySelectedFile(file);
+    }
+    // Add event listeners for drag and drop
+    dropArea.addEventListener('dragover', handleDragOver, false);
+    dropArea.addEventListener('dragleave', handleDragLeave, false);
+    dropArea.addEventListener('drop', handleFileSelect, false);
 
-      // Function to open the file input dialog
-      document.getElementById('open-file-button').addEventListener('click', function () {
-        document.getElementById('file').click();
-      });
+    // Function to handle file selection
 
-      // Function to handle file input change
-      document.getElementById('file').addEventListener('change', function () {
-        const file = this.files[0];
-        displaySelectedFile(file);
-      });
-    </script>
-  </body>
+    // Function to open the file input dialog
+    document.getElementById('open-file-button').addEventListener('click', function () {
+      document.getElementById('file').click();
+    });
+
+    // Function to handle file input change
+    document.getElementById('file').addEventListener('change', function () {
+      const file = this.files[0];
+      displaySelectedFile(file);
+    });
+  </script>
+</body>
+
 </html>

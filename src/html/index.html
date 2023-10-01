@@ -1,0 +1,104 @@
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Drag and Drop</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+       
+        
+        padding: 20px;
+        border: 2px dashed #ccc;
+        text-align: center;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+
+      .drop-area {
+        width: 100%;
+        height: 300px;
+        border: 2px dashed #ccc;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #f9f9f9;
+        cursor: pointer;
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      #selected-file {
+        margin-top: 10px;
+      }
+
+      #open-file-button {
+        margin-top: 10px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="drop-area" id="dropArea">
+        <p>Drag and drop a file here or</p>
+        <label for="file" id="selected-file">No file selected</label>
+        <input type="file" class="file-input" id="file" accept="*" />
+        <button id="open-file-button">Open File</button>
+      </div>
+    </div>
+
+    <script>
+    const dropArea = document.getElementById('dropArea');
+    function handleDragOver(e) {
+      e.preventDefault();
+      dropArea.style.backgroundColor = '#007bff';
+      dropArea.style.color = '#fff';
+    }
+
+    function displaySelectedFile(file) {
+      const selectedFile = document.getElementById('selected-file');
+      selectedFile.textContent = file.name;
+    }
+    function handleDragLeave(e) {
+      e.preventDefault();
+      dropArea.style.backgroundColor = '#f9f9f9';
+      dropArea.style.color = '#000';
+    }
+    function handleFileSelect(e) {
+      e.preventDefault();
+      dropArea.style.backgroundColor = '#f9f9f9';
+      dropArea.style.color = '#000';
+
+      const file = e.dataTransfer.files[0];
+      displaySelectedFile(file);
+    }
+
+    dropArea.addEventListener('dragover', handleDragOver, false);
+    dropArea.addEventListener('dragleave', handleDragLeave, false);
+    dropArea.addEventListener('drop', handleFileSelect, false);
+    
+document.getElementById('open-file-button').addEventListener('click', function () {
+      document.getElementById('file').click();
+    });
+
+    document.getElementById('file').addEventListener('change', function () {
+      const file = this.files[0];
+      displaySelectedFile(file);
+    });
+    </script>
+  </body>
+</html>

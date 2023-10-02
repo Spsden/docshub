@@ -62,7 +62,7 @@
     #selected-file {
       margin-top: 10px;
     }
-    .process-csv{
+    #process-csv{
       margin-top: 10px;
       padding: 10px 20px;
       display: none;
@@ -202,6 +202,7 @@
         reader.readAsText(file);
     
         reader.onload = function (e) {
+          processCsv.style.display = 'block';
           const contents = e.target.result;
           fileString = contents;
           const lines = contents.split('\n');
@@ -248,7 +249,7 @@
           csvTable.innerHTML = html;
 
           console.log(allColumnNames);
-          processCsv.style.display = '';
+          
         };
       } else {
         processCsv.style.display = 'none';

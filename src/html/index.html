@@ -124,14 +124,25 @@
       dropArea.style.color = '#000';
     }
 
-    function processColumns(selectedColumns, originalData) {
-      const columnsToRemove = [];
+    function checkBoxData() {
+      const items = document.getElementsByName('coloption');
+      const selectedItems = [];
+      for (let i = 0; i < items.length; i += 1) {
+        if (items[i].type === 'checkbox' && items[i].checked !== true) selectedItems.push(items[i].value);
+      }
+      return selectedItems;
+    }
 
+    function processColumns(selectedColumns, originalData) {
       const lines = originalData.split('\n');
       const columns = lines[0].split(',');
       const columnIndexToRemove = [];
 
-      columnsToRemove.forEach((column) => {
+      if (selectedColumns.length === 0) {
+        return originalData;
+      }
+
+      selectedColumns.forEach((column) => {
         const index = columns.indexOf(column.trim());
         if (index !== -1) {
           columnIndexToRemove.push(index);
@@ -147,13 +158,13 @@
         }
         return values.join(',');
       });
-      return filteredLines;
+      return filteredLines.join('\n');
     }
 
     function checkBoxCreator(name) {
       const box = `<p style="text-align:left">
         <label>
-          <input type="checkbox" class="filled-in" checked="checked" />
+          <input type="checkbox" class="filled-in" checked="checked" name="coloption" value="${name}" />
           <span>${name}</span>
         </label>
       </p>`;
@@ -166,6 +177,8 @@
     processCsv.addEventListener('click', (e) => {
       e.preventDefault();
       console.log('clicked');
+      const unchecked = checkBoxData();
+      const filteredData = processColumns(unchecked, fileString);
 
       if (fileString.trim().length !== 0) {
         // eslint-disable-next-line no-undef
@@ -174,7 +187,7 @@
             console.log(result);
           })
           // eslint-disable-next-line prettier/prettier
-      .myFunction(fileString);
+      .myFunction(filteredData);
   }
     });
 
@@ -201,16 +214,16 @@
           // making the tablehead
           // eslint-disable-next-line no-loop-func
           thead += '<tr>';
-          let form = '<form>';
+          // let form = '<form id="column-buttons">';
           columns.forEach((cell) => {
             const button = checkBoxCreator(cell);
-            form += button;
+            buttonList.innerHTML += button;
     
             const p = `<th>${cell}</th>`;
             thead += p;
           });
-          form += '</form>';
-          buttonList.innerHTML = form;
+          //  form += '</form>';
+          // buttonList.innerHTML = form;
           thead += '</tr>';
           thead += '</thead>';
 
